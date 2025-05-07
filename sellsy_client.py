@@ -6,7 +6,6 @@ import hmac
 import time
 import urllib.parse
 from config import (
-    SELLSY_API_URL,
     SELLSY_CONSUMER_TOKEN,
     SELLSY_CONSUMER_SECRET,
     SELLSY_USER_TOKEN,
@@ -16,7 +15,8 @@ from config import (
 class SellsyClient:
     def __init__(self):
         """Initialise le client Sellsy API v1"""
-        self.api_url = SELLSY_API_URL
+        # Correction: URL correcte pour l'API v1
+        self.api_url = 'https://apifeed.sellsy.com/0/'
         self.consumer_token = SELLSY_CONSUMER_TOKEN
         self.consumer_secret = SELLSY_CONSUMER_SECRET
         self.user_token = SELLSY_USER_TOKEN
