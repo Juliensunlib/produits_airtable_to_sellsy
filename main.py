@@ -45,7 +45,8 @@ def sync_service(airtable_client, sellsy_client, service_record):
                 return True
             else:
                 log_message("Échec de la mise à jour du service dans Sellsy")
-                airtable_client.update_service_status(record_id, status="Erreur")
+                airtable_client.update_service_status(record_id, status="Erreur", 
+                                                    error_message="Échec de la mise à jour du service dans Sellsy")
                 return False
         else:
             # Création d'un nouveau service
@@ -59,14 +60,15 @@ def sync_service(airtable_client, sellsy_client, service_record):
                 return True
             else:
                 log_message("Échec de la création du service dans Sellsy")
-                airtable_client.update_service_status(record_id, status="Erreur")
+                airtable_client.update_service_status(record_id, status="Erreur", 
+                                                   error_message="Échec de la création du service dans Sellsy")
                 return False
     
     except Exception as e:
         error_msg = f"Erreur lors de la synchronisation du service {service_name}: {str(e)}"
         log_message(error_msg)
         # Uniquement mettre à jour le statut
-        airtable_client.update_service_status(record_id, status="Erreur")
+        airtable_client.update_service_status(record_id, status="Erreur", error_message=error_msg)
         return False
 
 def main():
@@ -78,6 +80,10 @@ def main():
         log_message("Initialisation des clients Airtable et Sellsy")
         airtable_client = AirtableClient()
         sellsy_client = SellsyClient()
+        
+        # Récupérer les catégories Sellsy au démarrage pour optimiser les requêtes
+        log_message("Récupération des catégories depuis Sellsy")
+        sellsy_client.get_categories()
         
         # Récupérer les services à synchroniser
         log_message("Récupération des services à synchroniser depuis Airtable")
