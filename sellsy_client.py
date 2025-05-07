@@ -6,7 +6,8 @@ from config import (
     SELLSY_CONSUMER_TOKEN,
     SELLSY_CONSUMER_SECRET,
     SELLSY_USER_TOKEN,
-    SELLSY_USER_SECRET
+    SELLSY_USER_SECRET,
+    CATEGORY_MAPPING  # Import du nouveau mapping de catégories
 )
 
 class SellsyClient:
@@ -60,7 +61,7 @@ class SellsyClient:
             # Préparer les données de la requête
             request_data = self._prepare_request(method, params)
             
-            # CORRECTION: Structure correcte selon la documentation Sellsy
+            # Structure correcte selon la documentation Sellsy
             data = {
                 **oauth_params,
                 'request': 1,
@@ -127,6 +128,12 @@ class SellsyClient:
             
             print(f"Catégories récupérées: {categories}")
             
+            # Afficher les catégories pour faciliter la mise en place du mapping
+            print("\n=== LISTE COMPLÈTE DES CATÉGORIES SELLSY ===")
+            for name, cat_id in categories.items():
+                print(f"'{name}': '{cat_id}',")
+            print("===========================================\n")
+            
             # Mettre en cache
             self._categories_cache = categories
             return categories
@@ -135,28 +142,36 @@ class SellsyClient:
             print(f"Erreur lors de la récupération des catégories: {e}")
             return {}
     
-    def get_category_id(self, category_name):
+    def map_category(self, airtable_category):
         """
-        Obtient l'ID d'une catégorie à partir de son nom
+        Mappe une catégorie Airtable vers un ID de catégorie Sellsy
         
         Args:
-            category_name: Nom de la catégorie
+            airtable_category: Nom de la catégorie dans Airtable
             
         Returns:
-            str: ID de la catégorie ou None si non trouvée
+            str: ID de la catégorie dans Sellsy ou None si non trouvée
         """
+        # D'abord essayer avec le mapping prédéfini
+        if CATEGORY_MAPPING and airtable_category in CATEGORY_MAPPING:
+            category_id = CATEGORY_MAPPING[airtable_category]
+            print(f"Catégorie '{airtable_category}' mappée via configuration à l'ID: {category_id}")
+            return category_id
+        
+        # Ensuite essayer de trouver la catégorie par son nom exact
         categories = self.get_categories()
         
         # Recherche exacte
-        if category_name in categories:
-            return categories[category_name]
+        if airtable_category in categories:
+            return categories[airtable_category]
         
         # Recherche insensible à la casse
         for name, cat_id in categories.items():
-            if name.lower() == category_name.lower():
+            if name.lower() == airtable_category.lower():
                 return cat_id
         
-        print(f"Catégorie non trouvée: {category_name}")
+        print(f"⚠️ Catégorie non trouvée: '{airtable_category}'. "
+              f"Veuillez ajouter ce mapping dans config.py -> CATEGORY_MAPPING")
         return None
     
     def create_service(self, service_data):
@@ -175,16 +190,16 @@ class SellsyClient:
         if 'taxrate' not in service_data:
             service_data['taxrate'] = 20.0
         
-        # CORRECTION: Traiter la catégorie correctement en utilisant 'categoryid' (paramètre attendu par Sellsy)
+        # Traiter la catégorie avec le nouveau système de mapping
         if 'categoryName' in service_data:
             category_name = service_data.pop('categoryName')
-            category_id = self.get_category_id(category_name)
+            category_id = self.map_category(category_name)
             if category_id:
-                service_data['categoryid'] = category_id  # Utiliser directement 'categoryid'
-                print(f"Catégorie '{category_name}' mappée à l'ID: {category_id}")
+                service_data['categoryid'] = category_id
+                print(f"Catégorie '{category_name}' associée à l'ID: {category_id}")
             else:
-                print(f"Catégorie '{category_name}' non trouvée dans Sellsy")
-            
+                print(f"⚠️ Catégorie '{category_name}' non trouvée, service créé sans catégorie")
+        
         params = {
             'type': 'service',
             'service': service_data
@@ -227,15 +242,15 @@ class SellsyClient:
         if 'taxrate' not in service_data:
             service_data['taxrate'] = 20.0
         
-        # CORRECTION: Traiter la catégorie correctement en utilisant 'categoryid' (paramètre attendu par Sellsy)
+        # Traiter la catégorie avec le nouveau système de mapping
         if 'categoryName' in service_data:
             category_name = service_data.pop('categoryName')
-            category_id = self.get_category_id(category_name)
+            category_id = self.map_category(category_name)
             if category_id:
-                service_data['categoryid'] = category_id  # Utiliser directement 'categoryid'
-                print(f"Catégorie '{category_name}' mappée à l'ID: {category_id}")
+                service_data['categoryid'] = category_id
+                print(f"Catégorie '{category_name}' associée à l'ID: {category_id}")
             else:
-                print(f"Catégorie '{category_name}' non trouvée dans Sellsy")
+                print(f"⚠️ Catégorie '{category_name}' non trouvée, service mis à jour sans catégorie")
         
         params = {
             'type': 'service',
