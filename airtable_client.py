@@ -95,6 +95,13 @@ class AirtableClient:
             except (ValueError, TypeError):
                 print(f"Erreur de conversion du taux TVA pour le service {fields.get('Nom du service')}")
         
+        # Ajout de la catégorie si elle est présente
+        if 'Catégorie' in fields and fields['Catégorie']:
+            print(f"Ajout de la catégorie: {fields['Catégorie']}")
+            # Nous avons besoin d'obtenir l'ID de la catégorie depuis Sellsy
+            # Pour le moment, on stocke la valeur telle quelle, elle sera convertie en ID par SellsyClient
+            sellsy_data['category'] = fields['Catégorie']
+        
         # Vérifier si on a déjà un ID Sellsy (pour mise à jour)
         if 'ID Sellsy' in fields and fields['ID Sellsy']:
             sellsy_data['id'] = fields['ID Sellsy']
