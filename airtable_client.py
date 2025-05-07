@@ -96,11 +96,11 @@ class AirtableClient:
                 print(f"Erreur de conversion du taux TVA pour le service {fields.get('Nom du service')}")
         
         # Ajout de la catégorie si elle est présente
+        # CORRECTION: Utiliser 'categoryid' directement comme clé pour que SellsyClient ne la modifie pas
         if 'Catégorie' in fields and fields['Catégorie']:
             print(f"Ajout de la catégorie: {fields['Catégorie']}")
-            # Nous avons besoin d'obtenir l'ID de la catégorie depuis Sellsy
-            # Pour le moment, on stocke la valeur telle quelle, elle sera convertie en ID par SellsyClient
-            sellsy_data['category'] = fields['Catégorie']
+            # La valeur sera utilisée pour rechercher l'ID de catégorie dans SellsyClient
+            sellsy_data['categoryName'] = fields['Catégorie']  # On stocke le nom pour la conversion ultérieure
         
         # Vérifier si on a déjà un ID Sellsy (pour mise à jour)
         if 'ID Sellsy' in fields and fields['ID Sellsy']:
