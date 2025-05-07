@@ -175,12 +175,12 @@ class SellsyClient:
         if 'taxrate' not in service_data:
             service_data['taxrate'] = 20.0
         
-        # Traiter la catégorie si présente
-        if 'category' in service_data:
-            category_name = service_data.pop('category')
+        # CORRECTION: Traiter la catégorie correctement en utilisant 'categoryid' (paramètre attendu par Sellsy)
+        if 'categoryName' in service_data:
+            category_name = service_data.pop('categoryName')
             category_id = self.get_category_id(category_name)
             if category_id:
-                service_data['categoryid'] = category_id
+                service_data['categoryid'] = category_id  # Utiliser directement 'categoryid'
                 print(f"Catégorie '{category_name}' mappée à l'ID: {category_id}")
             else:
                 print(f"Catégorie '{category_name}' non trouvée dans Sellsy")
@@ -227,18 +227,15 @@ class SellsyClient:
         if 'taxrate' not in service_data:
             service_data['taxrate'] = 20.0
         
-        # Traiter la catégorie si présente
-        if 'category' in service_data:
-            category_name = service_data.pop('category')
+        # CORRECTION: Traiter la catégorie correctement en utilisant 'categoryid' (paramètre attendu par Sellsy)
+        if 'categoryName' in service_data:
+            category_name = service_data.pop('categoryName')
             category_id = self.get_category_id(category_name)
             if category_id:
-                service_data['categoryid'] = category_id
+                service_data['categoryid'] = category_id  # Utiliser directement 'categoryid'
                 print(f"Catégorie '{category_name}' mappée à l'ID: {category_id}")
             else:
                 print(f"Catégorie '{category_name}' non trouvée dans Sellsy")
-        
-        # S'assurer que l'ID est inclus dans les données
-        service_data['id'] = service_id
         
         params = {
             'type': 'service',
