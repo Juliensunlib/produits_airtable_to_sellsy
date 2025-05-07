@@ -21,15 +21,12 @@ SELLSY_API_URL = 'https://api.sellsy.com/v1/api.php'
 # Mapping des champs Airtable vers Sellsy
 # Modifiez cette section selon votre structure de données dans Airtable
 AIRTABLE_TO_SELLSY_MAPPING = {
-    'name': 'Name',              # Nom du service dans Airtable
-    'tradename': 'TradeName',    # Nom commercial dans Airtable
-    'notes': 'Notes',            # Notes dans Airtable
-    'unitAmount': 'UnitAmount',  # Prix unitaire dans Airtable
-    'unit': 'Unit',              # Unité dans Airtable
-    'taxid': 'TaxID',            # ID de taxe dans Airtable
+    'name': 'Référence',         # Code référence dans Airtable
+    'tradename': 'Nom du service',  # Nom du service dans Airtable
+    'notes': 'Description',      # Description dans Airtable
+    'unitAmount': 'Prix HT',     # Prix unitaire dans Airtable
+    'unit': 'Unité',             # Unité dans Airtable
+    'taxrate': 'Taux TVA',       # Taux de TVA dans Airtable
+    'active': 'Actif',           # Si le service est actif
     # Ajoutez d'autres champs selon vos besoins
 }
-
-# ID externe pour suivre les modifications/suppressions
-AIRTABLE_ID_FIELD = 'ID'         # Champ ID unique dans Airtable
-SELLSY_ID_FIELD = 'SellsyID'     # Champ où stocker l'ID Sellsy dans Airtable
