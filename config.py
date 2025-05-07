@@ -15,12 +15,23 @@ SELLSY_CONSUMER_SECRET = os.getenv('SELLSY_CONSUMER_SECRET')
 SELLSY_USER_TOKEN = os.getenv('SELLSY_USER_TOKEN')
 SELLSY_USER_SECRET = os.getenv('SELLSY_USER_SECRET')
 
-# URL de l'API Sellsy (corrigée)
-# Cela n'est plus utilisé directement dans le client Sellsy, mais gardé pour référence
+# URL de l'API Sellsy (pour référence)
 SELLSY_API_URL = 'https://apifeed.sellsy.com/0/'
 
+# Mapping des catégories Airtable vers les IDs Sellsy
+# À remplir après avoir exécuté une première fois le script
+# qui affichera toutes les catégories disponibles dans Sellsy
+CATEGORY_MAPPING = {
+    # Format : 'Nom catégorie dans Airtable': 'ID catégorie dans Sellsy'
+    # Exemple :
+    'Développement web': '123456',
+    'Formation': '234567',
+    'Conseil': '345678',
+    'Design': '456789',
+    # Ajoutez les autres catégories selon vos besoins
+}
+
 # Mapping des champs Airtable vers Sellsy
-# Modifiez cette section selon votre structure de données dans Airtable
 AIRTABLE_TO_SELLSY_MAPPING = {
     'name': 'Référence',         # Code référence dans Airtable
     'tradename': 'Nom du service',  # Nom du service dans Airtable
