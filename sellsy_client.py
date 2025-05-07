@@ -60,7 +60,7 @@ class SellsyClient:
             # Préparer les données de la requête
             request_data = self._prepare_request(method, params)
             
-            # Structure correcte selon la documentation Sellsy
+            # CORRECTION: Structure correcte selon la documentation Sellsy
             data = {
                 **oauth_params,
                 'request': 1,
@@ -98,7 +98,7 @@ class SellsyClient:
     
     def get_categories(self, force_refresh=False):
         """
-        Récupère les catégories de produits/services depuis Sellsy en utilisant Catalogue.getCategories
+        Récupère les catégories de produits/services depuis Sellsy
         
         Args:
             force_refresh: Force le rafraîchissement du cache des catégories
@@ -110,11 +110,8 @@ class SellsyClient:
         if self._categories_cache is not None and not force_refresh:
             return self._categories_cache
         
-        # Utiliser la méthode Catalogue.getCategories comme spécifié dans la documentation
         method = 'Catalogue.getCategories'
-        params = {
-            'includeImages': 'N'  # Pas besoin des images
-        }
+        params = {}
         
         try:
             response = self.call_api(method, params)
@@ -122,17 +119,13 @@ class SellsyClient:
             # Créer un dictionnaire pour le mapping nom -> id
             categories = {}
             
-            # Traiter la réponse selon le format retourné par l'API
             if response and isinstance(response, dict):
                 for category_id, category_data in response.items():
-                    if isinstance(category_data, dict) and 'name' in category_data:
+                    # S'assurer que la catégorie a un nom
+                    if 'name' in category_data:
                         categories[category_data['name']] = category_id
             
             print(f"Catégories récupérées: {categories}")
-            
-            # Si nous n'avons pas de catégories, afficher un avertissement
-            if not categories:
-                print("ATTENTION: Aucune catégorie n'a été récupérée depuis Sellsy!")
             
             # Mettre en cache
             self._categories_cache = categories
@@ -182,7 +175,7 @@ class SellsyClient:
         if 'taxrate' not in service_data:
             service_data['taxrate'] = 20.0
         
-        # Traiter la catégorie correctement
+        # CORRECTION: Traiter la catégorie correctement en utilisant 'categoryid' (paramètre attendu par Sellsy)
         if 'categoryName' in service_data:
             category_name = service_data.pop('categoryName')
             category_id = self.get_category_id(category_name)
@@ -234,12 +227,12 @@ class SellsyClient:
         if 'taxrate' not in service_data:
             service_data['taxrate'] = 20.0
         
-        # Traiter la catégorie correctement
+        # CORRECTION: Traiter la catégorie correctement en utilisant 'categoryid' (paramètre attendu par Sellsy)
         if 'categoryName' in service_data:
             category_name = service_data.pop('categoryName')
             category_id = self.get_category_id(category_name)
             if category_id:
-                service_data['categoryid'] = category_id
+                service_data['categoryid'] = category_id  # Utiliser directement 'categoryid'
                 print(f"Catégorie '{category_name}' mappée à l'ID: {category_id}")
             else:
                 print(f"Catégorie '{category_name}' non trouvée dans Sellsy")
