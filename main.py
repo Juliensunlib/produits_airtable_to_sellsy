@@ -46,6 +46,7 @@ def sync_service(airtable_client, sellsy_client, service_record):
             else:
                 error_msg = "Échec de la mise à jour du service dans Sellsy"
                 log_message(error_msg)
+                # Ne pas utiliser le champ "Erreur de synchronisation" qui n'existe pas
                 airtable_client.update_service_status(record_id, status="Erreur", error_message=error_msg)
                 return False
         else:
@@ -61,12 +62,14 @@ def sync_service(airtable_client, sellsy_client, service_record):
             else:
                 error_msg = "Échec de la création du service dans Sellsy"
                 log_message(error_msg)
+                # Ne pas utiliser le champ "Erreur de synchronisation" qui n'existe pas
                 airtable_client.update_service_status(record_id, status="Erreur", error_message=error_msg)
                 return False
     
     except Exception as e:
         error_msg = f"Erreur lors de la synchronisation du service {service_name}: {str(e)}"
         log_message(error_msg)
+        # Ne pas utiliser le champ "Erreur de synchronisation" qui n'existe pas
         airtable_client.update_service_status(record_id, status="Erreur", error_message=error_msg)
         return False
 
@@ -93,8 +96,11 @@ def main():
         # Synchroniser chaque service
         success_count = 0
         for service_record in services_to_sync:
-            if sync_service(airtable_client, sellsy_client, service_record):
-                success_count += 1
+            try:
+                if sync_service(airtable_client, sellsy_client, service_record):
+                    success_count += 1
+            except Exception as e:
+                log_message(f"Erreur non gérée lors de la synchronisation d'un service: {str(e)}")
             
             # Petite pause pour éviter de surcharger les APIs
             time.sleep(1)
