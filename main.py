@@ -75,10 +75,12 @@ def main():
     
     try:
         # Initialiser les clients
+        log_message("Initialisation des clients Airtable et Sellsy")
         airtable_client = AirtableClient()
         sellsy_client = SellsyClient()
         
         # Récupérer les services à synchroniser
+        log_message("Récupération des services à synchroniser depuis Airtable")
         services_to_sync = airtable_client.get_services_to_sync()
         
         if not services_to_sync:
