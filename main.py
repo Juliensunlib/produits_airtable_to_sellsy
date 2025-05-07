@@ -83,13 +83,7 @@ def main():
         
         # Récupérer les catégories Sellsy au démarrage pour optimiser les requêtes
         log_message("Récupération des catégories depuis Sellsy")
-        categories = sellsy_client.get_categories(force_refresh=True)
-        
-        if not categories:
-            log_message("AVERTISSEMENT: Aucune catégorie récupérée depuis Sellsy. La synchronisation pourrait être incomplète.")
-        else:
-            log_message(f"Nombre de catégories récupérées: {len(categories)}")
-            log_message(f"Catégories disponibles: {', '.join(categories.keys())}")
+        sellsy_client.get_categories()
         
         # Récupérer les services à synchroniser
         log_message("Récupération des services à synchroniser depuis Airtable")
@@ -103,26 +97,17 @@ def main():
         
         # Synchroniser chaque service
         success_count = 0
-        failure_count = 0
-        
         for service_record in services_to_sync:
             try:
-                service_name = service_record['fields'].get('Nom du service', 'Service sans nom')
-                log_message(f"Traitement du service: {service_name}")
-                
                 if sync_service(airtable_client, sellsy_client, service_record):
                     success_count += 1
-                else:
-                    failure_count += 1
-                    log_message(f"Échec de la synchronisation du service: {service_name}")
             except Exception as e:
-                failure_count += 1
                 log_message(f"Erreur non gérée lors de la synchronisation d'un service: {str(e)}")
             
             # Petite pause pour éviter de surcharger les APIs
             time.sleep(1)
         
-        log_message(f"Synchronisation terminée. {success_count}/{len(services_to_sync)} services synchronisés avec succès. {failure_count} échecs.")
+        log_message(f"Synchronisation terminée. {success_count}/{len(services_to_sync)} services synchronisés avec succès.")
     
     except Exception as e:
         log_message(f"Erreur critique lors de la synchronisation: {e}")
