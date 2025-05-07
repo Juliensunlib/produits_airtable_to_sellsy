@@ -1,10 +1,7 @@
 import requests
 import json
 import random
-import hashlib
-import hmac
 import time
-import urllib.parse
 from config import (
     SELLSY_CONSUMER_TOKEN,
     SELLSY_CONSUMER_SECRET,
