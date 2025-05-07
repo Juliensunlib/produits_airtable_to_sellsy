@@ -50,8 +50,11 @@ class AirtableClient:
             if sellsy_id:
                 fields_to_update["ID Sellsy"] = str(sellsy_id)  # Conversion explicite en string
                 
-            if error_message:
-                fields_to_update["Erreur de synchronisation"] = error_message
+            # Suppression du champ "Erreur de synchronisation" qui n'existe pas dans Airtable
+            # Au lieu d'utiliser un champ séparé, on peut ajouter le message d'erreur dans un champ de notes existant
+            if error_message and status == "Erreur":
+                # Utilisons un champ existant pour stocker l'erreur, par exemple "Description" ou créez un champ "Notes"
+                fields_to_update["Description"] = f"ERREUR DE SYNC: {error_message}"
             
             print(f"Mise à jour du statut du service {record_id} avec les champs: {fields_to_update}")    
             self.table.update(record_id, fields_to_update)
