@@ -71,6 +71,22 @@ def sync_service(airtable_client, sellsy_client, service_record):
         airtable_client.update_service_status(record_id, status="Erreur", error_message=error_msg)
         return False
 
+def list_all_sellsy_categories(sellsy_client):
+    """
+    Récupère et affiche toutes les catégories disponibles dans Sellsy
+    pour faciliter la création du mapping
+    """
+    log_message("Récupération de toutes les catégories disponibles dans Sellsy...")
+    categories = sellsy_client.get_categories(force_refresh=True)
+    
+    log_message("\n=== CATÉGORIES DISPONIBLES DANS SELLSY ===")
+    log_message("Copier ces valeurs dans config.py -> CATEGORY_MAPPING:")
+    log_message("CATEGORY_MAPPING = {")
+    for name, cat_id in categories.items():
+        log_message(f"    '{name}': '{cat_id}',")
+    log_message("}")
+    log_message("=========================================\n")
+
 def main():
     """Fonction principale"""
     log_message("Démarrage de la synchronisation Airtable -> Sellsy")
@@ -81,9 +97,15 @@ def main():
         airtable_client = AirtableClient()
         sellsy_client = SellsyClient()
         
+        # Option pour juste lister les catégories (utile pour configurer le mapping)
+        if '--list-categories' in sys.argv:
+            list_all_sellsy_categories(sellsy_client)
+            return
+        
         # Récupérer les catégories Sellsy au démarrage pour optimiser les requêtes
         log_message("Récupération des catégories depuis Sellsy")
-        sellsy_client.get_categories()
+        categories = sellsy_client.get_categories()
+        log_message(f"Nombre de catégories trouvées dans Sellsy: {len(categories)}")
         
         # Récupérer les services à synchroniser
         log_message("Récupération des services à synchroniser depuis Airtable")
