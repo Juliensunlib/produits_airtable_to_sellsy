@@ -43,12 +43,9 @@ class SellsyClient:
         }
         
         # Convertir en JSON encodé pour l'API Sellsy
-        encoded_request = urllib.parse.quote(json.dumps(request_data))
+        encoded_request = json.dumps(request_data)
         
-        return {
-            'request': encoded_request,
-            'io_mode': 'json'
-        }
+        return encoded_request
     
     def call_api(self, method, params):
         """
@@ -69,7 +66,11 @@ class SellsyClient:
             request_data = self._prepare_request(method, params)
             
             # Combiner les données OAuth et les données de requête
-            data = {**oauth_params, **request_data}
+            data = {
+                **oauth_params,
+                'request': request_data,
+                'io_mode': 'json'  # Ce paramètre doit être envoyé séparément
+            }
             
             # Envoyer la requête POST
             print(f"Envoi de la requête à l'API Sellsy: {method}")
