@@ -7,7 +7,7 @@ from config import (
     SELLSY_CONSUMER_SECRET,
     SELLSY_USER_TOKEN,
     SELLSY_USER_SECRET,
-    CATEGORY_MAPPING  # Import du nouveau mapping de catégories
+    CATEGORY_MAPPING  # Import du mapping de catégories
 )
 
 class SellsyClient:
@@ -190,7 +190,11 @@ class SellsyClient:
         if 'taxrate' not in service_data:
             service_data['taxrate'] = 20.0
         
-        # Traiter la catégorie avec le nouveau système de mapping
+        # S'assurer que la quantité est spécifiée (valeur par défaut = 1)
+        if 'qt' not in service_data:
+            service_data['qt'] = 1
+        
+        # Traiter la catégorie avec le système de mapping
         if 'categoryName' in service_data:
             category_name = service_data.pop('categoryName')
             category_id = self.map_category(category_name)
@@ -242,7 +246,11 @@ class SellsyClient:
         if 'taxrate' not in service_data:
             service_data['taxrate'] = 20.0
         
-        # Traiter la catégorie avec le nouveau système de mapping
+        # S'assurer que la quantité est spécifiée (valeur par défaut = 1)
+        if 'qt' not in service_data:
+            service_data['qt'] = 1
+        
+        # Traiter la catégorie avec le système de mapping
         if 'categoryName' in service_data:
             category_name = service_data.pop('categoryName')
             category_id = self.map_category(category_name)
