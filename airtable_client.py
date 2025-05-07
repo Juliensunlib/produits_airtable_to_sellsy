@@ -20,13 +20,15 @@ class AirtableClient:
         Récupère les services marqués 'À synchroniser'
         """
         try:
-            # Filtre pour obtenir les services avec statut "À synchroniser" ou avec case "À synchroniser" cochée
-            formula = "OR({Statut de synchronisation} = 'À synchroniser', {À synchroniser} = TRUE())"
+            # Utilisation de la formule simplifiée pour éviter les problèmes d'encodage
+            formula = "{Statut de synchronisation} = 'À synchroniser'"
+            print(f"Formule utilisée: {formula}")
             records = self.table.all(formula=formula)
             print(f"Services à synchroniser récupérés: {len(records)}")
             return records
         except Exception as e:
             print(f"Erreur lors de la récupération des services à synchroniser: {e}")
+            print(f"Détails de l'erreur: {str(e)}")
             return []
     
     def update_service_status(self, record_id, sellsy_id=None, status="Synchronisé", error_message=None):
@@ -42,8 +44,7 @@ class AirtableClient:
         try:
             fields_to_update = {
                 "Statut de synchronisation": status,
-                "Dernière synchronisation": datetime.now().isoformat(),
-                "À synchroniser": False
+                "Dernière synchronisation": datetime.now().isoformat()
             }
             
             if sellsy_id:
