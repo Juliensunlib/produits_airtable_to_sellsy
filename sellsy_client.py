@@ -1,96 +1,199 @@
-from pyairtable import Table
-from config import AIRTABLE_API_KEY, AIRTABLE_BASE_ID, AIRTABLE_TABLE_NAME
-from datetime import datetime
+import requests
+import json
+import random
+import time
+from config import (
+    SELLSY_CONSUMER_TOKEN,
+    SELLSY_CONSUMER_SECRET,
+    SELLSY_USER_TOKEN,
+    SELLSY_USER_SECRET
+)
 
-class AirtableClient:
+class SellsyClient:
     def __init__(self):
-        """Initialise le client Airtable"""
-        self.table = Table(AIRTABLE_API_KEY, AIRTABLE_BASE_ID, AIRTABLE_TABLE_NAME)
+        """Initialise le client Sellsy API v1"""
+        # URL correcte pour l'API v1
+        self.api_url = 'https://apifeed.sellsy.com/0/'
+        self.consumer_token = SELLSY_CONSUMER_TOKEN
+        self.consumer_secret = SELLSY_CONSUMER_SECRET
+        self.user_token = SELLSY_USER_TOKEN
+        self.user_secret = SELLSY_USER_SECRET
     
-    def get_all_services(self):
-        """Récupère tous les services depuis Airtable"""
-        try:
-            return self.table.all()
-        except Exception as e:
-            print(f"Erreur lors de la récupération des services depuis Airtable: {e}")
-            return []
+    def _get_oauth_params(self):
+        """Génère les paramètres OAuth requis pour l'authentification"""
+        oauth_params = {
+            'oauth_consumer_key': self.consumer_token,
+            'oauth_token': self.user_token,
+            'oauth_nonce': str(random.getrandbits(64)),
+            'oauth_timestamp': str(int(time.time())),
+            'oauth_signature_method': 'PLAINTEXT',
+            'oauth_version': '1.0',
+            'oauth_signature': f"{self.consumer_secret}&{self.user_secret}"
+        }
+        return oauth_params
     
-    def get_services_to_sync(self):
-        """
-        Récupère les services marqués 'À synchroniser'
-        """
-        try:
-            # Utilisation de la formule simplifiée pour éviter les problèmes d'encodage
-            formula = "{Statut de synchronisation} = 'À synchroniser'"
-            print(f"Formule utilisée: {formula}")
-            records = self.table.all(formula=formula)
-            print(f"Services à synchroniser récupérés: {len(records)}")
-            return records
-        except Exception as e:
-            print(f"Erreur lors de la récupération des services à synchroniser: {e}")
-            print(f"Détails de l'erreur: {str(e)}")
-            return []
-    
-    def update_service_status(self, record_id, sellsy_id=None, status="Synchronisé", error_message=None):
-        """
-        Met à jour le statut d'un service après synchronisation
-        
-        Args:
-            record_id: ID de l'enregistrement Airtable
-            sellsy_id: ID du service dans Sellsy (si création réussie)
-            status: Statut de synchronisation ("Synchronisé" ou "Erreur")
-            error_message: Message d'erreur (non utilisé, gardé pour compatibilité)
-        """
-        try:
-            fields_to_update = {
-                "Statut de synchronisation": status,
-                "Dernière synchronisation": datetime.now().isoformat()
-            }
-            
-            if sellsy_id:
-                fields_to_update["ID Sellsy"] = str(sellsy_id)  # Conversion explicite en string
-            
-            print(f"Mise à jour du statut du service {record_id} avec les champs: {fields_to_update}")    
-            self.table.update(record_id, fields_to_update)
-            print(f"Statut du service {record_id} mis à jour: {status}")
-        except Exception as e:
-            print(f"Erreur lors de la mise à jour du statut du service: {e}")
-            
-    def map_to_sellsy_format(self, airtable_record):
-        """
-        Transforme un enregistrement Airtable au format attendu par l'API Sellsy
-        
-        Args:
-            airtable_record: Enregistrement récupéré depuis Airtable
-            
-        Returns:
-            dict: Données formatées pour l'API Sellsy
-        """
-        fields = airtable_record['fields']
-        print(f"Mapping du service: {fields.get('Nom du service', 'Service sans nom')}")
-        
-        # Création du mapping selon la structure de votre table Airtable
-        sellsy_data = {
-            'name': fields.get('Référence', ''),
-            'tradename': fields.get('Nom du service', ''),
-            'notes': fields.get('Description', ''),
-            'unitAmount': float(fields.get('Prix HT', 0)),
-            'unit': fields.get('Unité', 'forfait'),  # Valeur par défaut si non spécifiée
-            'active': 'Y' if fields.get('Actif', True) else 'N',  # Corrigé: 'active' au lieu de 'actif'
+    def _prepare_request(self, method, params):
+        """Prépare les données de la requête"""
+        request_data = {
+            'method': method,
+            'params': params
         }
         
-        # Ajout conditionnel du taux de TVA si présent
-        if 'Taux TVA' in fields:
-            try:
-                # Assumons que le taux est stocké comme un nombre
-                tax_rate = float(fields.get('Taux TVA', 0))
-                sellsy_data['taxrate'] = tax_rate
-            except (ValueError, TypeError):
-                print(f"Erreur de conversion du taux TVA pour le service {fields.get('Nom du service')}")
+        # Convertir en JSON encodé pour l'API Sellsy
+        encoded_request = json.dumps(request_data)
         
-        # Vérifier si on a déjà un ID Sellsy (pour mise à jour)
-        if 'ID Sellsy' in fields and fields['ID Sellsy']:
-            sellsy_data['id'] = fields['ID Sellsy']
+        return encoded_request
+    
+    def call_api(self, method, params):
+        """
+        Envoie une requête à l'API Sellsy
         
-        print(f"Données formatées pour Sellsy: {sellsy_data}")
-        return sellsy_data
+        Args:
+            method: Méthode API Sellsy (ex: 'Catalogue.create')
+            params: Paramètres de la méthode
+            
+        Returns:
+            dict: Réponse de l'API Sellsy
+        """
+        try:
+            # Obtenir les paramètres OAuth
+            oauth_params = self._get_oauth_params()
+            
+            # Préparer les données de la requête
+            request_data = self._prepare_request(method, params)
+            
+            # CORRECTION: Placer io_mode comme paramètre de requête, pas dans les données
+            # Combiner les données OAuth et les données de requête
+            data = {
+                **oauth_params,
+                'request': request_data
+            }
+            
+            # Envoyer la requête POST avec io_mode en tant que paramètre séparé
+            print(f"Envoi de la requête à l'API Sellsy: {method}")
+            response = requests.post(self.api_url, data=data, params={'io_mode': 'json'})
+            
+            # Afficher les paramètres envoyés pour le débogage (sans les infos sensibles)
+            debug_params = {**params}
+            print(f"Paramètres envoyés: {json.dumps(debug_params, indent=2, default=str)}")
+            
+            # Vérifier le statut de la réponse
+            if response.status_code == 200:
+                result = response.json()
+                print(f"Réponse de l'API (status): {result.get('status')}")
+                
+                if result.get('status') == 'success':
+                    return result.get('response')
+                else:
+                    error_msg = result.get('error', 'Unknown error')
+                    print(f"Erreur API Sellsy: {error_msg}")
+                    raise Exception(f"Erreur API Sellsy: {error_msg}")
+            else:
+                print(f"Erreur HTTP: {response.status_code}")
+                print(f"Contenu de la réponse: {response.text}")
+                raise Exception(f"Erreur HTTP: {response.status_code}")
+        
+        except Exception as e:
+            print(f"Erreur lors de l'appel à l'API Sellsy: {e}")
+            raise
+    
+    def create_service(self, service_data):
+        """
+        Crée un nouveau service dans Sellsy
+        
+        Args:
+            service_data: Données du service à créer
+            
+        Returns:
+            str: ID du service créé
+        """
+        method = 'Catalogue.create'
+        params = {
+            'type': 'service',
+            'service': service_data
+        }
+        
+        try:
+            response = self.call_api(method, params)
+            # Vérifier si l'ID du service est retourné (peut être 'service_id' ou 'id')
+            if response:
+                print(f"Réponse de création du service: {json.dumps(response, indent=2, default=str)}")
+                if 'service_id' in response:
+                    return response['service_id']
+                elif 'id' in response:
+                    return response['id']
+                else:
+                    print(f"L'ID du service n'a pas été retourné par l'API Sellsy. Réponse: {response}")
+                    return None
+            else:
+                print("Réponse vide de l'API Sellsy")
+                return None
+        
+        except Exception as e:
+            print(f"Erreur lors de la création du service: {e}")
+            return None
+    
+    def update_service(self, service_id, service_data):
+        """
+        Met à jour un service existant dans Sellsy
+        
+        Args:
+            service_id: ID du service à mettre à jour
+            service_data: Nouvelles données du service
+            
+        Returns:
+            bool: True si la mise à jour a réussi, False sinon
+        """
+        method = 'Catalogue.update'
+        
+        # S'assurer que l'ID est inclus dans les données
+        service_data['id'] = service_id
+        
+        params = {
+            'type': 'service',
+            'id': service_id,
+            'service': service_data
+        }
+        
+        try:
+            response = self.call_api(method, params)
+            print(f"Réponse de mise à jour du service: {json.dumps(response, indent=2, default=str)}")
+            
+            if response:
+                # La mise à jour peut renvoyer différents formats de réponse
+                if 'service_id' in response or 'id' in response or response is True:
+                    return True
+                else:
+                    print(f"Format de réponse inattendu lors de la mise à jour du service: {response}")
+                    return False
+            else:
+                print("Erreur lors de la mise à jour du service")
+                return False
+        
+        except Exception as e:
+            print(f"Erreur lors de la mise à jour du service: {e}")
+            return False
+    
+    def delete_service(self, service_id):
+        """
+        Supprime un service de Sellsy
+        
+        Args:
+            service_id: ID du service à supprimer
+            
+        Returns:
+            bool: True si la suppression a réussi, False sinon
+        """
+        method = 'Catalogue.delete'
+        params = {
+            'type': 'service',
+            'id': service_id
+        }
+        
+        try:
+            response = self.call_api(method, params)
+            return True
+        
+        except Exception as e:
+            print(f"Erreur lors de la suppression du service: {e}")
+            return False
