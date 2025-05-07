@@ -29,5 +29,6 @@ AIRTABLE_TO_SELLSY_MAPPING = {
     'unit': 'Unité',             # Unité dans Airtable
     'taxrate': 'Taux TVA',       # Taux de TVA dans Airtable
     'active': 'Actif',           # Si le service est actif
+    'categoryid': 'Catégorie',   # Catégorie dans Airtable
     # Ajoutez d'autres champs selon vos besoins
 }
