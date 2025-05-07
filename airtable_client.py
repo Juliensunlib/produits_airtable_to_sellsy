@@ -86,6 +86,19 @@ class AirtableClient:
             'unitAmountIsTaxesFree': 'Y'  # Indique explicitement que le prix est HT (sans taxes)
         }
         
+        # Ajout de la quantité si présente
+        if 'Quantité' in fields:
+            try:
+                quantity = int(fields.get('Quantité', 1))
+                sellsy_data['qt'] = quantity
+            except (ValueError, TypeError):
+                print(f"Erreur de conversion de la quantité pour le service {fields.get('Nom du service')}")
+                # Valeur par défaut si la conversion échoue
+                sellsy_data['qt'] = 1
+        else:
+            # Valeur par défaut selon la documentation Sellsy
+            sellsy_data['qt'] = 1
+        
         # Ajout conditionnel du taux de TVA si présent
         if 'Taux TVA' in fields:
             try:
