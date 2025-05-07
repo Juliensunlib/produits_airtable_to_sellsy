@@ -12,7 +12,7 @@ from config import (
 class SellsyClient:
     def __init__(self):
         """Initialise le client Sellsy API v1"""
-        # Correction: URL correcte pour l'API v1
+        # URL correcte pour l'API v1
         self.api_url = 'https://apifeed.sellsy.com/0/'
         self.consumer_token = SELLSY_CONSUMER_TOKEN
         self.consumer_secret = SELLSY_CONSUMER_SECRET
@@ -62,16 +62,16 @@ class SellsyClient:
             # Préparer les données de la requête
             request_data = self._prepare_request(method, params)
             
+            # CORRECTION: Placer io_mode comme paramètre de requête, pas dans les données
             # Combiner les données OAuth et les données de requête
             data = {
                 **oauth_params,
-                'request': request_data,
-                'io_mode': 'json'  # Ce paramètre doit être envoyé séparément
+                'request': request_data
             }
             
-            # Envoyer la requête POST
+            # Envoyer la requête POST avec io_mode en tant que paramètre séparé
             print(f"Envoi de la requête à l'API Sellsy: {method}")
-            response = requests.post(self.api_url, data=data)
+            response = requests.post(self.api_url, data=data, params={'io_mode': 'json'})
             
             # Afficher les paramètres envoyés pour le débogage (sans les infos sensibles)
             debug_params = {**params}
