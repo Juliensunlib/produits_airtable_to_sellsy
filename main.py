@@ -34,7 +34,7 @@ def sync_service(airtable_client, sellsy_client, service_record):
         sellsy_data = airtable_client.map_to_sellsy_format(service_record)
         
         # Vérifier si on a déjà un ID Sellsy (mise à jour) ou s'il faut créer
-        if 'id' in sellsy_data:
+        if 'id' in sellsy_data and sellsy_data['id']:
             # Mise à jour d'un service existant
             service_id = sellsy_data.pop('id')  # Retirer l'ID des données pour éviter une erreur
             log_message(f"Mise à jour du service Sellsy ID: {service_id}")
@@ -55,6 +55,7 @@ def sync_service(airtable_client, sellsy_client, service_record):
             
             if service_id:
                 log_message(f"Service créé avec succès, ID Sellsy: {service_id}")
+                # Important: Mise à jour de l'ID Sellsy dans Airtable
                 airtable_client.update_service_status(record_id, service_id)
                 return True
             else:
