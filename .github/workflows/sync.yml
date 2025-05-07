@@ -52,7 +52,11 @@ jobs:
       - name: Synchronisation Airtable vers Sellsy
         run: python main.py
       
-      # Notification de fin d'exécution (optionnel)
+      # Notification de fin d'exécution (ajout d'informations détaillées)
       - name: Notification de fin
         if: always()
-        run: echo "Synchronisation terminée avec statut ${{ job.status }}"
+        run: |
+          echo "Synchronisation terminée avec statut ${{ job.status }}"
+          if [ "${{ job.status }}" != "success" ]; then
+            echo "Vérifiez les logs pour plus de détails sur les erreurs"
+          fi
