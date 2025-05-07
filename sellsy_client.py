@@ -33,16 +33,12 @@ class SellsyClient:
         return oauth_params
     
     def _prepare_request(self, method, params):
-        """Prépare les données de la requête"""
+        """Prépare les données de la requête selon le format attendu par l'API Sellsy"""
         request_data = {
             'method': method,
             'params': params
         }
-        
-        # Convertir en JSON encodé pour l'API Sellsy
-        encoded_request = json.dumps(request_data)
-        
-        return encoded_request
+        return request_data
     
     def call_api(self, method, params):
         """
@@ -62,16 +58,17 @@ class SellsyClient:
             # Préparer les données de la requête
             request_data = self._prepare_request(method, params)
             
-            # CORRECTION: Placer io_mode comme paramètre de requête, pas dans les données
-            # Combiner les données OAuth et les données de requête
+            # CORRECTION: Structure correcte selon la documentation Sellsy
             data = {
                 **oauth_params,
-                'request': request_data
+                'request': 1,
+                'io_mode': 'json',
+                'do_in': json.dumps(request_data)
             }
             
-            # Envoyer la requête POST avec io_mode en tant que paramètre séparé
+            # Envoyer la requête POST avec les paramètres correctement formatés
             print(f"Envoi de la requête à l'API Sellsy: {method}")
-            response = requests.post(self.api_url, data=data, params={'io_mode': 'json'})
+            response = requests.post(self.api_url, data=data)
             
             # Afficher les paramètres envoyés pour le débogage (sans les infos sensibles)
             debug_params = {**params}
