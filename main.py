@@ -44,10 +44,8 @@ def sync_service(airtable_client, sellsy_client, service_record):
                 airtable_client.update_service_status(record_id, service_id)
                 return True
             else:
-                error_msg = "Échec de la mise à jour du service dans Sellsy"
-                log_message(error_msg)
-                # Ne pas utiliser le champ "Erreur de synchronisation" qui n'existe pas
-                airtable_client.update_service_status(record_id, status="Erreur", error_message=error_msg)
+                log_message("Échec de la mise à jour du service dans Sellsy")
+                airtable_client.update_service_status(record_id, status="Erreur")
                 return False
         else:
             # Création d'un nouveau service
@@ -60,17 +58,15 @@ def sync_service(airtable_client, sellsy_client, service_record):
                 airtable_client.update_service_status(record_id, service_id)
                 return True
             else:
-                error_msg = "Échec de la création du service dans Sellsy"
-                log_message(error_msg)
-                # Ne pas utiliser le champ "Erreur de synchronisation" qui n'existe pas
-                airtable_client.update_service_status(record_id, status="Erreur", error_message=error_msg)
+                log_message("Échec de la création du service dans Sellsy")
+                airtable_client.update_service_status(record_id, status="Erreur")
                 return False
     
     except Exception as e:
         error_msg = f"Erreur lors de la synchronisation du service {service_name}: {str(e)}"
         log_message(error_msg)
-        # Ne pas utiliser le champ "Erreur de synchronisation" qui n'existe pas
-        airtable_client.update_service_status(record_id, status="Erreur", error_message=error_msg)
+        # Uniquement mettre à jour le statut
+        airtable_client.update_service_status(record_id, status="Erreur")
         return False
 
 def main():
