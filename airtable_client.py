@@ -82,8 +82,8 @@ class AirtableClient:
             'notes': fields.get('Description', ''),
             'unitAmount': float(fields.get('Prix HT', 0)),
             'unit': fields.get('Unité', 'forfait'),  # Valeur par défaut si non spécifiée
-            'active': 'Y' if fields.get('Actif', True) else 'N',  # Corrigé: 'active' au lieu de 'actif'
-            'priceType': 'HT'  # Indique explicitement que le prix est HT
+            'actif': 'Y' if fields.get('Actif', True) else 'N',  # Utilisation du paramètre 'actif' conformément à la documentation
+            'unitAmountIsTaxesFree': 'Y'  # Indique explicitement que le prix est HT (sans taxes)
         }
         
         # Ajout conditionnel du taux de TVA si présent
