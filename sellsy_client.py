@@ -72,11 +72,18 @@ class SellsyClient:
             data = {**oauth_params, **request_data}
             
             # Envoyer la requête POST
+            print(f"Envoi de la requête à l'API Sellsy: {method}")
             response = requests.post(self.api_url, data=data)
+            
+            # Afficher les paramètres envoyés pour le débogage (sans les infos sensibles)
+            debug_params = {**params}
+            print(f"Paramètres envoyés: {json.dumps(debug_params, indent=2, default=str)}")
             
             # Vérifier le statut de la réponse
             if response.status_code == 200:
                 result = response.json()
+                print(f"Réponse de l'API (status): {result.get('status')}")
+                
                 if result.get('status') == 'success':
                     return result.get('response')
                 else:
@@ -85,6 +92,7 @@ class SellsyClient:
                     raise Exception(f"Erreur API Sellsy: {error_msg}")
             else:
                 print(f"Erreur HTTP: {response.status_code}")
+                print(f"Contenu de la réponse: {response.text}")
                 raise Exception(f"Erreur HTTP: {response.status_code}")
         
         except Exception as e:
@@ -109,10 +117,18 @@ class SellsyClient:
         
         try:
             response = self.call_api(method, params)
-            if response and 'service_id' in response:
-                return response['service_id']
+            # Vérifier si l'ID du service est retourné (peut être 'service_id' ou 'id')
+            if response:
+                print(f"Réponse de création du service: {json.dumps(response, indent=2, default=str)}")
+                if 'service_id' in response:
+                    return response['service_id']
+                elif 'id' in response:
+                    return response['id']
+                else:
+                    print(f"L'ID du service n'a pas été retourné par l'API Sellsy. Réponse: {response}")
+                    return None
             else:
-                print("L'ID du service n'a pas été retourné par l'API Sellsy")
+                print("Réponse vide de l'API Sellsy")
                 return None
         
         except Exception as e:
@@ -143,8 +159,15 @@ class SellsyClient:
         
         try:
             response = self.call_api(method, params)
-            if response and 'service_id' in response:
-                return True
+            print(f"Réponse de mise à jour du service: {json.dumps(response, indent=2, default=str)}")
+            
+            if response:
+                # La mise à jour peut renvoyer différents formats de réponse
+                if 'service_id' in response or 'id' in response or response is True:
+                    return True
+                else:
+                    print(f"Format de réponse inattendu lors de la mise à jour du service: {response}")
+                    return False
             else:
                 print("Erreur lors de la mise à jour du service")
                 return False
