@@ -18,6 +18,8 @@ class SellsyClient:
         self.consumer_secret = SELLSY_CONSUMER_SECRET
         self.user_token = SELLSY_USER_TOKEN
         self.user_secret = SELLSY_USER_SECRET
+        # Cache pour les catégories
+        self._categories_cache = None
     
     def _get_oauth_params(self):
         """Génère les paramètres OAuth requis pour l'authentification"""
@@ -94,6 +96,69 @@ class SellsyClient:
             print(f"Erreur lors de l'appel à l'API Sellsy: {e}")
             raise
     
+    def get_categories(self, force_refresh=False):
+        """
+        Récupère les catégories de produits/services depuis Sellsy
+        
+        Args:
+            force_refresh: Force le rafraîchissement du cache des catégories
+            
+        Returns:
+            dict: Dictionnaire des catégories {nom_catégorie: id_catégorie}
+        """
+        # Utiliser le cache si disponible et non forcé
+        if self._categories_cache is not None and not force_refresh:
+            return self._categories_cache
+        
+        method = 'Catalogue.getCategories'
+        params = {}
+        
+        try:
+            response = self.call_api(method, params)
+            
+            # Créer un dictionnaire pour le mapping nom -> id
+            categories = {}
+            
+            if response and isinstance(response, dict):
+                for category_id, category_data in response.items():
+                    # S'assurer que la catégorie a un nom
+                    if 'name' in category_data:
+                        categories[category_data['name']] = category_id
+            
+            print(f"Catégories récupérées: {categories}")
+            
+            # Mettre en cache
+            self._categories_cache = categories
+            return categories
+        
+        except Exception as e:
+            print(f"Erreur lors de la récupération des catégories: {e}")
+            return {}
+    
+    def get_category_id(self, category_name):
+        """
+        Obtient l'ID d'une catégorie à partir de son nom
+        
+        Args:
+            category_name: Nom de la catégorie
+            
+        Returns:
+            str: ID de la catégorie ou None si non trouvée
+        """
+        categories = self.get_categories()
+        
+        # Recherche exacte
+        if category_name in categories:
+            return categories[category_name]
+        
+        # Recherche insensible à la casse
+        for name, cat_id in categories.items():
+            if name.lower() == category_name.lower():
+                return cat_id
+        
+        print(f"Catégorie non trouvée: {category_name}")
+        return None
+    
     def create_service(self, service_data):
         """
         Crée un nouveau service dans Sellsy
@@ -109,6 +174,16 @@ class SellsyClient:
         # S'assurer que la valeur par défaut pour le taux de TVA est 20% si non spécifié
         if 'taxrate' not in service_data:
             service_data['taxrate'] = 20.0
+        
+        # Traiter la catégorie si présente
+        if 'category' in service_data:
+            category_name = service_data.pop('category')
+            category_id = self.get_category_id(category_name)
+            if category_id:
+                service_data['categoryid'] = category_id
+                print(f"Catégorie '{category_name}' mappée à l'ID: {category_id}")
+            else:
+                print(f"Catégorie '{category_name}' non trouvée dans Sellsy")
             
         params = {
             'type': 'service',
@@ -151,6 +226,16 @@ class SellsyClient:
         # S'assurer que la valeur par défaut pour le taux de TVA est 20% si non spécifié
         if 'taxrate' not in service_data:
             service_data['taxrate'] = 20.0
+        
+        # Traiter la catégorie si présente
+        if 'category' in service_data:
+            category_name = service_data.pop('category')
+            category_id = self.get_category_id(category_name)
+            if category_id:
+                service_data['categoryid'] = category_id
+                print(f"Catégorie '{category_name}' mappée à l'ID: {category_id}")
+            else:
+                print(f"Catégorie '{category_name}' non trouvée dans Sellsy")
         
         # S'assurer que l'ID est inclus dans les données
         service_data['id'] = service_id
