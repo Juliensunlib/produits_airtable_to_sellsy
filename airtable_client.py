@@ -22,7 +22,9 @@ class AirtableClient:
         try:
             # Filtre pour obtenir les services avec statut "À synchroniser" ou avec case "À synchroniser" cochée
             formula = "OR({Statut de synchronisation} = 'À synchroniser', {À synchroniser} = TRUE())"
-            return self.table.all(formula=formula)
+            records = self.table.all(formula=formula)
+            print(f"Services à synchroniser récupérés: {len(records)}")
+            return records
         except Exception as e:
             print(f"Erreur lors de la récupération des services à synchroniser: {e}")
             return []
@@ -45,11 +47,12 @@ class AirtableClient:
             }
             
             if sellsy_id:
-                fields_to_update["ID Sellsy"] = sellsy_id
+                fields_to_update["ID Sellsy"] = str(sellsy_id)  # Conversion explicite en string
                 
             if error_message:
                 fields_to_update["Erreur de synchronisation"] = error_message
-                
+            
+            print(f"Mise à jour du statut du service {record_id} avec les champs: {fields_to_update}")    
             self.table.update(record_id, fields_to_update)
             print(f"Statut du service {record_id} mis à jour: {status}")
         except Exception as e:
@@ -66,6 +69,7 @@ class AirtableClient:
             dict: Données formatées pour l'API Sellsy
         """
         fields = airtable_record['fields']
+        print(f"Mapping du service: {fields.get('Nom du service', 'Service sans nom')}")
         
         # Création du mapping selon la structure de votre table Airtable
         sellsy_data = {
@@ -74,7 +78,7 @@ class AirtableClient:
             'notes': fields.get('Description', ''),
             'unitAmount': float(fields.get('Prix HT', 0)),
             'unit': fields.get('Unité', 'forfait'),  # Valeur par défaut si non spécifiée
-            'actif': 'Y' if fields.get('Actif', True) else 'N',
+            'active': 'Y' if fields.get('Actif', True) else 'N',  # Corrigé: 'active' au lieu de 'actif'
         }
         
         # Ajout conditionnel du taux de TVA si présent
@@ -89,5 +93,6 @@ class AirtableClient:
         # Vérifier si on a déjà un ID Sellsy (pour mise à jour)
         if 'ID Sellsy' in fields and fields['ID Sellsy']:
             sellsy_data['id'] = fields['ID Sellsy']
-            
+        
+        print(f"Données formatées pour Sellsy: {sellsy_data}")
         return sellsy_data
