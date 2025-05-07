@@ -105,6 +105,11 @@ class SellsyClient:
             str: ID du service créé
         """
         method = 'Catalogue.create'
+        
+        # S'assurer que la valeur par défaut pour le taux de TVA est 20% si non spécifié
+        if 'taxrate' not in service_data:
+            service_data['taxrate'] = 20.0
+            
         params = {
             'type': 'service',
             'service': service_data
@@ -142,6 +147,10 @@ class SellsyClient:
             bool: True si la mise à jour a réussi, False sinon
         """
         method = 'Catalogue.update'
+        
+        # S'assurer que la valeur par défaut pour le taux de TVA est 20% si non spécifié
+        if 'taxrate' not in service_data:
+            service_data['taxrate'] = 20.0
         
         # S'assurer que l'ID est inclus dans les données
         service_data['id'] = service_id
