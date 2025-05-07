@@ -15,8 +15,9 @@ SELLSY_CONSUMER_SECRET = os.getenv('SELLSY_CONSUMER_SECRET')
 SELLSY_USER_TOKEN = os.getenv('SELLSY_USER_TOKEN')
 SELLSY_USER_SECRET = os.getenv('SELLSY_USER_SECRET')
 
-# URL de l'API Sellsy
-SELLSY_API_URL = 'https://api.sellsy.com/v1/api.php'
+# URL de l'API Sellsy (corrigée)
+# Cela n'est plus utilisé directement dans le client Sellsy, mais gardé pour référence
+SELLSY_API_URL = 'https://apifeed.sellsy.com/0/'
 
 # Mapping des champs Airtable vers Sellsy
 # Modifiez cette section selon votre structure de données dans Airtable
