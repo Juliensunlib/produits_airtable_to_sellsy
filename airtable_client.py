@@ -21,7 +21,7 @@ class AirtableClient:
         """
         try:
             # Utilisation de la formule simplifiée pour éviter les problèmes d'encodage
-            formula = "{Statut de synchronisation} = 'À synchroniser' OR {À synchroniser} = 1"
+            formula = "{Statut de synchronisation} = 'À synchroniser'"
             print(f"Formule utilisée: {formula}")
             records = self.table.all(formula=formula)
             print(f"Services à synchroniser récupérés: {len(records)}")
@@ -44,8 +44,7 @@ class AirtableClient:
         try:
             fields_to_update = {
                 "Statut de synchronisation": status,
-                "Dernière synchronisation": datetime.now().isoformat(),
-                "À synchroniser": False  # Réinitialiser le flag de synchronisation
+                "Dernière synchronisation": datetime.now().isoformat()
             }
             
             if sellsy_id:
@@ -54,9 +53,8 @@ class AirtableClient:
             # Utilisons un champ dédié pour stocker les erreurs de synchronisation
             # sans modifier la description originale du service
             if error_message and status == "Erreur":
+                # Supposons qu'il existe un champ "Message d'erreur" ou créons-le
                 fields_to_update["Message d'erreur"] = f"ERREUR DE SYNC: {error_message}"
-            elif status == "Synchronisé":
-                fields_to_update["Message d'erreur"] = ""  # Effacer le message d'erreur précédent
             
             print(f"Mise à jour du statut du service {record_id} avec les champs: {fields_to_update}")    
             self.table.update(record_id, fields_to_update)
@@ -91,35 +89,22 @@ class AirtableClient:
         # Ajout conditionnel du taux de TVA si présent
         if 'Taux TVA' in fields:
             try:
-                # Assurons-nous que le taux est stocké comme un nombre
+                # Assumons que le taux est stocké comme un nombre
                 tax_rate = float(fields.get('Taux TVA', 0))
                 sellsy_data['taxrate'] = tax_rate
             except (ValueError, TypeError):
                 print(f"Erreur de conversion du taux TVA pour le service {fields.get('Nom du service')}")
-                sellsy_data['taxrate'] = 20.0  # Taux par défaut en cas d'erreur
         
         # Ajout de la catégorie si elle est présente
-        # On stocke le nom pour la conversion ultérieure en categoryid par SellsyClient
+        # CORRECTION: Utiliser 'categoryid' directement comme clé pour que SellsyClient ne la modifie pas
         if 'Catégorie' in fields and fields['Catégorie']:
             print(f"Ajout de la catégorie: {fields['Catégorie']}")
-            sellsy_data['categoryName'] = fields['Catégorie']
+            # La valeur sera utilisée pour rechercher l'ID de catégorie dans SellsyClient
+            sellsy_data['categoryName'] = fields['Catégorie']  # On stocke le nom pour la conversion ultérieure
         
         # Vérifier si on a déjà un ID Sellsy (pour mise à jour)
         if 'ID Sellsy' in fields and fields['ID Sellsy']:
             sellsy_data['id'] = fields['ID Sellsy']
-        
-        # Autres champs optionnels si présents
-        if 'Description courte' in fields and fields['Description courte']:
-            sellsy_data['tradenametonote'] = 'Y'  # Ajoute le nom commercial à la description
-        
-        # Caractéristiques du service si présentes
-        characteristics = {}
-        if 'Durée (heures)' in fields:
-            try:
-                cost_per_hour = float(fields.get('Durée (heures)', 0))
-                sellsy_data['costPerHour'] = cost_per_hour
-            except (ValueError, TypeError):
-                pass
         
         print(f"Données formatées pour Sellsy: {sellsy_data}")
         return sellsy_data
