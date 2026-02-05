@@ -115,10 +115,11 @@ class AirtableClient:
             # La valeur sera utilisée pour rechercher l'ID de catégorie dans SellsyClient
             sellsy_data['categoryName'] = fields['Catégorie']  # On stocke le nom pour la conversion ultérieure
 
-            # Ajout automatique du code comptable 628000 pour les abonnements
+            # Ajout automatique du code comptable 706000 pour les abonnements
+            # 706000 = Prestations de services (code de VENTE, classe 7)
             if fields['Catégorie'].lower() == 'abonnement':
-                sellsy_data['accountingCode'] = '628000'
-                print(f"Code comptable 628000 (ID: 76) ajouté pour l'abonnement")
+                sellsy_data['accountingCode'] = '706000'
+                print(f"Code comptable 706000 (Prestations de services) ajouté pour l'abonnement")
 
         # Vérifier si on a déjà un ID Sellsy (pour mise à jour)
         if 'ID Sellsy' in fields and fields['ID Sellsy']:
