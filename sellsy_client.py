@@ -21,6 +21,8 @@ class SellsyClient:
         self.user_secret = SELLSY_USER_SECRET
         # Cache pour les catégories
         self._categories_cache = None
+        # Cache pour les codes comptables
+        self._accounting_codes_cache = None
     
     def _get_oauth_params(self):
         """Génère les paramètres OAuth requis pour l'authentification"""
@@ -173,7 +175,79 @@ class SellsyClient:
         print(f"⚠️ Catégorie non trouvée: '{airtable_category}'. "
               f"Veuillez ajouter ce mapping dans config.py -> CATEGORY_MAPPING")
         return None
-    
+
+    def get_accounting_codes(self, force_refresh=False):
+        """
+        Récupère les codes comptables depuis Sellsy
+
+        Args:
+            force_refresh: Force le rafraîchissement du cache
+
+        Returns:
+            dict: Dictionnaire des codes comptables {code: id}
+        """
+        # Utiliser le cache si disponible et non forcé
+        if self._accounting_codes_cache is not None and not force_refresh:
+            return self._accounting_codes_cache
+
+        method = 'Accountdatas.getList'
+        params = {}
+
+        try:
+            response = self.call_api(method, params)
+
+            # Créer un dictionnaire pour le mapping code -> id
+            accounting_codes = {}
+
+            if response and isinstance(response, dict):
+                for code_id, code_data in response.items():
+                    # S'assurer que le code comptable a un numéro
+                    if 'code' in code_data:
+                        accounting_codes[code_data['code']] = code_id
+
+            print(f"Codes comptables récupérés: {len(accounting_codes)} codes")
+
+            # Afficher quelques exemples pour le débogage
+            print("\n=== EXEMPLES DE CODES COMPTABLES SELLSY ===")
+            count = 0
+            for code, code_id in accounting_codes.items():
+                if count < 10 or code in ['628000', '706000', '601000']:
+                    print(f"Code '{code}': ID '{code_id}'")
+                    count += 1
+            print("===========================================\n")
+
+            # Mettre en cache
+            self._accounting_codes_cache = accounting_codes
+            return accounting_codes
+
+        except Exception as e:
+            print(f"Erreur lors de la récupération des codes comptables: {e}")
+            return {}
+
+    def get_accounting_code_id(self, code):
+        """
+        Récupère l'ID d'un code comptable depuis son numéro
+
+        Args:
+            code: Numéro du code comptable (ex: '628000')
+
+        Returns:
+            str: ID du code comptable ou None si non trouvé
+        """
+        accounting_codes = self.get_accounting_codes()
+
+        # Recherche exacte
+        if code in accounting_codes:
+            return accounting_codes[code]
+
+        # Recherche en convertissant en string si nécessaire
+        str_code = str(code)
+        if str_code in accounting_codes:
+            return accounting_codes[str_code]
+
+        print(f"⚠️ Code comptable non trouvé: '{code}'")
+        return None
+
     def create_service(self, service_data):
         """
         Crée un nouveau service dans Sellsy
@@ -203,7 +277,17 @@ class SellsyClient:
                 print(f"Catégorie '{category_name}' associée à l'ID: {category_id}")
             else:
                 print(f"⚠️ Catégorie '{category_name}' non trouvée, service créé sans catégorie")
-        
+
+        # Traiter le code comptable de vente
+        if 'accountingCode' in service_data:
+            accounting_code = service_data.pop('accountingCode')
+            accounting_code_id = self.get_accounting_code_id(accounting_code)
+            if accounting_code_id:
+                service_data['accountingcodeid'] = accounting_code_id
+                print(f"Code comptable '{accounting_code}' associé à l'ID: {accounting_code_id}")
+            else:
+                print(f"⚠️ Code comptable '{accounting_code}' non trouvé, service créé sans code comptable")
+
         params = {
             'type': 'service',
             'service': service_data
@@ -259,7 +343,17 @@ class SellsyClient:
                 print(f"Catégorie '{category_name}' associée à l'ID: {category_id}")
             else:
                 print(f"⚠️ Catégorie '{category_name}' non trouvée, service mis à jour sans catégorie")
-        
+
+        # Traiter le code comptable de vente
+        if 'accountingCode' in service_data:
+            accounting_code = service_data.pop('accountingCode')
+            accounting_code_id = self.get_accounting_code_id(accounting_code)
+            if accounting_code_id:
+                service_data['accountingcodeId'] = accounting_code_id
+                print(f"Code comptable '{accounting_code}' associé à l'ID: {accounting_code_id}")
+            else:
+                print(f"⚠️ Code comptable '{accounting_code}' non trouvé, service mis à jour sans code comptable")
+
         params = {
             'type': 'service',
             'id': service_id,

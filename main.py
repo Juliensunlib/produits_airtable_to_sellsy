@@ -106,7 +106,12 @@ def main():
         log_message("Récupération des catégories depuis Sellsy")
         categories = sellsy_client.get_categories()
         log_message(f"Nombre de catégories trouvées dans Sellsy: {len(categories)}")
-        
+
+        # Récupérer les codes comptables Sellsy au démarrage pour optimiser les requêtes
+        log_message("Récupération des codes comptables depuis Sellsy")
+        accounting_codes = sellsy_client.get_accounting_codes()
+        log_message(f"Nombre de codes comptables trouvés dans Sellsy: {len(accounting_codes)}")
+
         # Récupérer les services à synchroniser
         log_message("Récupération des services à synchroniser depuis Airtable")
         services_to_sync = airtable_client.get_services_to_sync()
