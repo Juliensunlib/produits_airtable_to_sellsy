@@ -117,8 +117,8 @@ class AirtableClient:
 
             # Ajout automatique du code comptable 628000 pour les abonnements
             if fields['Catégorie'].lower() == 'abonnement':
-                sellsy_data['saleAccountCode'] = '628000'
-                print(f"Code comptable de vente 628000 ajouté pour l'abonnement")
+                sellsy_data['accountingCode'] = '628000'
+                print(f"Code comptable 628000 ajouté pour l'abonnement")
 
         # Vérifier si on a déjà un ID Sellsy (pour mise à jour)
         if 'ID Sellsy' in fields and fields['ID Sellsy']:
