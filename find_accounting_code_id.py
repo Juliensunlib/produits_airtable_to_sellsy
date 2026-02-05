@@ -11,7 +11,7 @@ load_dotenv()
 # Importer après le chargement de .env
 from sellsy_client import SellsyClient
 
-def get_service_details(sellsy_client, service_id='1709'):
+def get_service_details(sellsy_client, service_id):
     """Récupère les détails d'un service pour voir son code comptable"""
     print("=" * 70)
     print(f"  ANALYSE DU SERVICE ID {service_id}")
@@ -87,8 +87,8 @@ def get_service_details(sellsy_client, service_id='1709'):
                 print()
                 print("💡 SOLUTION:")
                 print("   1. Allez dans votre interface Sellsy")
-                print("   2. Éditez le service 'Anthony RAEZ / 5 kWc / 25 ans'")
-                print("   3. Assignez-lui le code comptable 628000")
+                print(f"   2. Éditez le service (ID: {service_id})")
+                print("   3. Assignez-lui le code comptable souhaité (ex: 628000)")
                 print("   4. Relancez ce script")
                 print()
 
@@ -134,8 +134,20 @@ def main():
         print(f"❌ Erreur lors de l'initialisation du client Sellsy: {e}")
         return
 
-    # Analyser le service existant (celui qui a été synchronisé)
-    service_data = get_service_details(sellsy_client, '1709')
+    # Récupérer l'ID du service depuis les arguments de ligne de commande
+    service_id = '1709'  # Valeur par défaut
+
+    if len(sys.argv) > 1:
+        service_id = sys.argv[1]
+        print(f"📌 ID de service fourni: {service_id}")
+        print()
+    else:
+        print(f"💡 Utilisation: python3 find_accounting_code_id.py <SERVICE_ID>")
+        print(f"   Utilisation de l'ID par défaut: {service_id}")
+        print()
+
+    # Analyser le service existant
+    service_data = get_service_details(sellsy_client, service_id)
 
     print()
     print("=" * 70)

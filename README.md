@@ -136,8 +136,7 @@ Ce projet contient plusieurs scripts utilitaires pour faciliter la configuration
 Scripts principaux :
 - `main.py` - Synchronisation Airtable → Sellsy
 - `get_all_accounting_codes.py` - Récupération automatique des codes comptables depuis Sellsy
-- `get_service_accounting_code.py` - Analyse d'un service existant
-- `find_accounting_code_id.py` - Débogage et recherche avancée
+- `find_accounting_code_id.py` - Analyse d'un service existant pour trouver son code comptable
 
 ## Support
 

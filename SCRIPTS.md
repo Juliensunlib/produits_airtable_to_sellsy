@@ -57,42 +57,34 @@ Code       Libellé                                                      ID
 
 ---
 
-### `get_service_accounting_code.py` - Récupération depuis un service
-**Usage:** Modifier le fichier puis `python3 get_service_accounting_code.py`
+### `find_accounting_code_id.py` - Analyse d'un service existant
+**Usage:** `python3 find_accounting_code_id.py [SERVICE_ID]`
 
-Script alternatif qui récupère l'ID du code comptable en analysant un service Sellsy existant.
+Script pour récupérer l'ID du code comptable en analysant un service Sellsy existant.
 
 **Fonctionnalités:**
-- Analyse un service Sellsy spécifique (ID 1709 par défaut)
+- Analyse un service Sellsy spécifique pour trouver son code comptable
 - Affiche tous les champs liés aux codes comptables
-- Utile si l'API des codes comptables ne fonctionne pas
+- Utile si vous avez un service avec le bon code comptable configuré
+- Accepte un ID de service en paramètre (défaut: 1709)
+
+**Exemples:**
+```bash
+# Analyser le service ID 1709 (par défaut)
+python3 find_accounting_code_id.py
+
+# Analyser un service spécifique
+python3 find_accounting_code_id.py 2456
+```
 
 **Quand l'utiliser:**
 - Si `get_all_accounting_codes.py` ne fonctionne pas
-- Pour analyser un service spécifique
-
-**Configuration:**
-Éditez le fichier et remplacez les clés API au début du fichier.
-
----
-
-### `find_accounting_code_id.py` - Recherche d'ID (avancé)
-**Usage:** `python3 find_accounting_code_id.py`
-
-Script de débogage qui teste plusieurs méthodes API pour trouver les codes comptables.
-
-**Fonctionnalités:**
-- Teste différentes méthodes API Sellsy
-- Analyse les réponses pour trouver le format correct
-- Affiche des informations de débogage détaillées
-
-**Quand l'utiliser:**
-- Problèmes avec les autres scripts
-- Débogage de l'API Sellsy
-- Développement et tests
+- Pour analyser un service spécifique qui a déjà un code comptable
+- Pour vérifier les codes comptables d'un service existant
 
 **Prérequis:**
-- Fichier `.env` configuré
+- Fichier `.env` configuré avec les clés API Sellsy
+- Un service existant dans Sellsy avec un code comptable assigné
 
 ---
 
