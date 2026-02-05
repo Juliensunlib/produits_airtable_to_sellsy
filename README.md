@@ -22,7 +22,17 @@ Ce projet automatise la synchronisation des services entre Airtable et Sellsy en
 
 ### 1. Configurer les secrets GitHub
 
-Dans votre dépôt GitHub, allez dans Settings > Secrets > Actions et ajoutez les secrets suivants:
+**📖 Guide complet : [GITHUB_SECRETS_SETUP.md](GITHUB_SECRETS_SETUP.md)**
+
+Le guide détaillé vous explique :
+- Comment obtenir vos clés API Sellsy et Airtable
+- Comment configurer chaque secret dans GitHub
+- Comment tester que tout fonctionne
+- Dépannage des problèmes courants
+
+**Secrets requis :**
+
+Dans votre dépôt GitHub, allez dans Settings > Secrets and variables > Actions et ajoutez :
 
 - `AIRTABLE_API_KEY`: Votre clé API Airtable
 - `AIRTABLE_BASE_ID`: L'ID de votre base Airtable
@@ -36,9 +46,17 @@ Dans votre dépôt GitHub, allez dans Settings > Secrets > Actions et ajoutez le
 
 Pour que les codes comptables soient correctement assignés aux services, vous devez configurer le mapping dans le fichier `config.py`.
 
+**🚀 Vous ne pouvez pas lancer le workflow GitHub ?** Consultez le guide : [OBTENIR_IDS_LOCALEMENT.md](OBTENIR_IDS_LOCALEMENT.md)
+
 #### Méthode automatique (Recommandée) 🚀
 
-Utilisez le script `get_all_accounting_codes.py` pour récupérer automatiquement tous les codes comptables depuis Sellsy :
+**Option 1 : Script automatique**
+
+```bash
+bash setup_and_get_codes.sh
+```
+
+**Option 2 : Script Python direct**
 
 ```bash
 python3 get_all_accounting_codes.py
