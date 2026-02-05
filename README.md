@@ -2,6 +2,8 @@
 
 Ce projet automatise la synchronisation des services entre Airtable et Sellsy en utilisant GitHub Actions. Les services sont récupérés depuis une table Airtable et synchronisés vers Sellsy toutes les 6 heures.
 
+**🚀 Nouveau ? Consultez le [Guide de démarrage rapide](QUICKSTART.md) pour une configuration en 5 minutes !**
+
 ## Fonctionnalités
 
 - Récupération automatique des services à synchroniser dans Airtable
@@ -34,14 +36,36 @@ Dans votre dépôt GitHub, allez dans Settings > Secrets > Actions et ajoutez le
 
 Pour que les codes comptables soient correctement assignés aux services, vous devez configurer le mapping dans le fichier `config.py`.
 
-**Comment trouver l'ID d'un code comptable dans Sellsy :**
+#### Méthode automatique (Recommandée) 🚀
+
+Utilisez le script `get_all_accounting_codes.py` pour récupérer automatiquement tous les codes comptables depuis Sellsy :
+
+```bash
+python3 get_all_accounting_codes.py
+```
+
+Ce script va :
+- Récupérer tous les codes comptables depuis votre compte Sellsy
+- Afficher une liste complète avec les IDs
+- Chercher automatiquement le code 628000
+- Sauvegarder la liste dans `accounting_codes_sellsy.json`
+- Vous donner les instructions exactes pour configurer `config.py`
+
+**Prérequis :** Assurez-vous que votre fichier `.env` contient vos clés API Sellsy.
+
+#### Méthode manuelle
+
+Si vous préférez récupérer l'ID manuellement :
 
 1. Connectez-vous à votre interface Sellsy
 2. Allez dans **Paramètres** > **Comptabilité** > **Plan comptable**
 3. Trouvez le code comptable souhaité (ex: 628000)
 4. Cliquez sur le code pour voir ses détails
 5. L'ID du code comptable se trouve dans l'URL : `https://votrecompte.sellsy.com/settings/accountdatas/edit/ID`
-6. Copiez cet ID et ajoutez-le dans `config.py` :
+
+#### Configuration dans config.py
+
+Une fois l'ID récupéré, ajoutez-le dans `config.py` :
 
 ```python
 ACCOUNTING_CODE_MAPPING = {
@@ -50,6 +74,8 @@ ACCOUNTING_CODE_MAPPING = {
     '601000': 'ID_TROUVE',
 }
 ```
+
+Puis décommentez les lignes 120-122 dans `airtable_client.py` pour activer l'ajout automatique des codes comptables.
 
 **Note :** Les codes comptables sont automatiquement assignés selon la catégorie du service :
 - Catégorie "Abonnement" → Code comptable 628000
@@ -100,6 +126,18 @@ Si un service n'est pas synchronisé correctement:
 1. Vérifiez le "Statut de synchronisation" dans Airtable
 2. Si le statut est "Erreur", consultez le message d'erreur dans le champ correspondant
 3. Vérifiez les logs d'exécution dans GitHub Actions pour plus de détails
+
+## Scripts utilitaires
+
+Ce projet contient plusieurs scripts utilitaires pour faciliter la configuration et le dépannage.
+
+**📖 Consultez le fichier [SCRIPTS.md](SCRIPTS.md) pour la documentation complète de tous les scripts disponibles.**
+
+Scripts principaux :
+- `main.py` - Synchronisation Airtable → Sellsy
+- `get_all_accounting_codes.py` - Récupération automatique des codes comptables depuis Sellsy
+- `get_service_accounting_code.py` - Analyse d'un service existant
+- `find_accounting_code_id.py` - Débogage et recherche avancée
 
 ## Support
 
