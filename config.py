@@ -24,7 +24,7 @@ SELLSY_API_URL = 'https://apifeed.sellsy.com/0/'
 CATEGORY_MAPPING = {
     # Format : 'Nom catégorie dans Airtable': 'ID catégorie dans Sellsy'
     'Abonnement': '57',  # Catégorie Abonnement avec code comptable 706000 (ID: 75)
-    'Caution': '',  # À configurer selon vos besoins
+    'Caution': '58',     # Catégorie Caution
     # Ajoutez les autres catégories selon vos besoins
 }
 

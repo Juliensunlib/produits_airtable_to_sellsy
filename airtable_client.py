@@ -109,17 +109,11 @@ class AirtableClient:
                 print(f"Erreur de conversion du taux TVA pour le service {fields.get('Nom du service')}")
         
         # Ajout de la catégorie si elle est présente
-        # CORRECTION: Utiliser 'categoryid' directement comme clé pour que SellsyClient ne la modifie pas
+        # La catégorie Sellsy sera automatiquement associée et apportera ses codes comptables
         if 'Catégorie' in fields and fields['Catégorie']:
             print(f"Ajout de la catégorie: {fields['Catégorie']}")
             # La valeur sera utilisée pour rechercher l'ID de catégorie dans SellsyClient
             sellsy_data['categoryName'] = fields['Catégorie']  # On stocke le nom pour la conversion ultérieure
-
-            # Ajout automatique du code comptable 706000 pour les abonnements
-            # 706000 = Prestations de services (code de VENTE, classe 7)
-            if fields['Catégorie'].lower() == 'abonnement':
-                sellsy_data['accountingCode'] = '706000'
-                print(f"Code comptable 706000 (Prestations de services) ajouté pour l'abonnement")
 
         # Vérifier si on a déjà un ID Sellsy (pour mise à jour)
         if 'ID Sellsy' in fields and fields['ID Sellsy']:
