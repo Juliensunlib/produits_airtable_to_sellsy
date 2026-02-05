@@ -23,11 +23,8 @@ SELLSY_API_URL = 'https://apifeed.sellsy.com/0/'
 # qui affichera toutes les catégories disponibles dans Sellsy
 CATEGORY_MAPPING = {
     # Format : 'Nom catégorie dans Airtable': 'ID catégorie dans Sellsy'
-    # Exemple :
-    'Développement web': '123456',
-    'Formation': '234567',
-    'Conseil': '345678',
-    'Design': '456789',
+    'Abonnement': '57',  # Catégorie Abonnement avec code comptable 706000 (ID: 75)
+    'Caution': '',  # À configurer selon vos besoins
     # Ajoutez les autres catégories selon vos besoins
 }
 
@@ -36,8 +33,8 @@ CATEGORY_MAPPING = {
 # (Paramètres > Comptabilité > Plan comptable)
 ACCOUNTING_CODE_MAPPING = {
     # Format : 'Code comptable': 'ID du code comptable dans Sellsy'
-    '628000': '76',  # Abonnement
-    '706000': '2',   # Prestations de services
+    '706000': '75',  # Prestations de services (code de VENTE pour abonnements)
+    '628000': '76',  # Autre prestation - conservé pour référence
     '601000': '12',  # Achats stockés - Matières premières
     '411000': '1',   # Clients
     '401000': '3',   # Fournisseurs

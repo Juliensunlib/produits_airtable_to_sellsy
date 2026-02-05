@@ -1,16 +1,15 @@
-"""
-Test de mise à jour du service 1709 avec le code comptable ID 75
-"""
+from dotenv import load_dotenv
 from sellsy_client import SellsyClient
+
+load_dotenv()
+
+sellsy = SellsyClient()
 
 print("=" * 80)
 print("  TEST: MISE À JOUR AVEC accountingcodeid = 75")
 print("=" * 80)
 print()
 
-sellsy = SellsyClient()
-
-# Mise à jour du service 1709 avec le bon ID
 params = {
     'type': 'service',
     'id': '1709',
@@ -24,25 +23,21 @@ params = {
         'unitAmountIsTaxesFree': 'Y',
         'qt': 1,
         'taxrate': 20.0,
-        'accountingcodeid': 75  # Le BON ID selon l'utilisateur
+        'accountingcodeid': 75
     }
 }
 
-print("📤 Envoi de la requête avec accountingcodeid = 75")
+print("📤 Envoi avec accountingcodeid = 75")
 print()
 
 try:
     response = sellsy.call_api('Catalogue.update', params)
-
     if response:
-        print("✅ SUCCÈS!")
+        print("✅ SUCCÈS! Service 1709 mis à jour avec ID comptable 75")
         print()
-        print("Le service 1709 a été mis à jour avec le code comptable ID 75.")
-        print()
-        print("👉 Vérifiez maintenant dans Sellsy si le code 706000 apparaît.")
+        print("👉 Vérifiez dans Sellsy si le code 706000 apparaît maintenant.")
     else:
-        print("❌ Échec de la mise à jour")
-
+        print("❌ Échec")
 except Exception as e:
     print(f"❌ Erreur: {e}")
 
