@@ -2,7 +2,30 @@
 
 Ce projet automatise la synchronisation des services entre Airtable et Sellsy en utilisant GitHub Actions. Les services sont récupérés depuis une table Airtable et synchronisés vers Sellsy toutes les 6 heures.
 
-**🚀 Nouveau ? Consultez le [Guide de démarrage rapide](QUICKSTART.md) pour une configuration en 5 minutes !**
+---
+
+## ⚠️ VOTRE PROJET N'EST PAS ENCORE SUR GITHUB
+
+**Vous ne voyez pas le workflow dans GitHub Actions ?** C'est normal !
+
+**Solution automatique en 1 commande :**
+```bash
+bash setup_git_github.sh
+```
+
+**📖 Pourquoi et comment ?** [POURQUOI_PAS_DE_WORKFLOW.md](POURQUOI_PAS_DE_WORKFLOW.md)
+
+---
+
+## 🚀 Guides de démarrage rapide
+
+**Une fois sur GitHub :**
+- **Récupérer les codes comptables** : [QUICK_START_GITHUB.md](QUICK_START_GITHUB.md) ⭐ Recommandé
+- **Configuration complète** : [QUICKSTART.md](QUICKSTART.md)
+
+**Alternative locale (sans GitHub) :**
+- **Récupérer les codes en local** : [OBTENIR_IDS_LOCALEMENT.md](OBTENIR_IDS_LOCALEMENT.md)
+- Commande : `bash setup_and_get_codes.sh`
 
 ## Fonctionnalités
 
@@ -46,9 +69,21 @@ Dans votre dépôt GitHub, allez dans Settings > Secrets and variables > Actions
 
 Pour que les codes comptables soient correctement assignés aux services, vous devez configurer le mapping dans le fichier `config.py`.
 
-**🚀 Vous ne pouvez pas lancer le workflow GitHub ?** Consultez le guide : [OBTENIR_IDS_LOCALEMENT.md](OBTENIR_IDS_LOCALEMENT.md)
+#### Méthode recommandée : Workflow GitHub 🚀
 
-#### Méthode automatique (Recommandée) 🚀
+**📖 Guide complet : [LANCER_WORKFLOW_GITHUB.md](LANCER_WORKFLOW_GITHUB.md)**
+
+Lancez le workflow directement depuis GitHub Actions :
+1. Onglet **Actions** > **"Récupération des codes comptables Sellsy"**
+2. Cliquez sur **"Run workflow"** > **"Run workflow"**
+3. Attendez 1 minute
+4. Récupérez l'ID du code 628000 dans le résumé
+
+Avantages : Pas d'installation locale, secrets déjà configurés dans GitHub, résultats en 1 minute !
+
+#### Alternative : Exécution locale
+
+**📖 Guide complet : [OBTENIR_IDS_LOCALEMENT.md](OBTENIR_IDS_LOCALEMENT.md)
 
 **Option 1 : Script automatique**
 
