@@ -36,10 +36,11 @@ CATEGORY_MAPPING = {
 # (Paramètres > Comptabilité > Plan comptable)
 ACCOUNTING_CODE_MAPPING = {
     # Format : 'Code comptable': 'ID du code comptable dans Sellsy'
-    # Exemple :
-    '628000': None,  # ID à récupérer depuis Sellsy
-    '706000': None,  # ID à récupérer depuis Sellsy
-    '601000': None,  # ID à récupérer depuis Sellsy
+    '628000': '76',  # Abonnement
+    '706000': '2',   # Prestations de services
+    '601000': '12',  # Achats stockés - Matières premières
+    '411000': '1',   # Clients
+    '401000': '3',   # Fournisseurs
     # Ajoutez les autres codes selon vos besoins
 }
 
