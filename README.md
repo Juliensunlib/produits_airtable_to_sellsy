@@ -30,7 +30,31 @@ Dans votre dépôt GitHub, allez dans Settings > Secrets > Actions et ajoutez le
 - `SELLSY_USER_TOKEN`: Votre token utilisateur Sellsy API V1
 - `SELLSY_USER_SECRET`: Votre secret utilisateur Sellsy API V1
 
-### 2. Structure de la table Airtable
+### 2. Configuration des codes comptables
+
+Pour que les codes comptables soient correctement assignés aux services, vous devez configurer le mapping dans le fichier `config.py`.
+
+**Comment trouver l'ID d'un code comptable dans Sellsy :**
+
+1. Connectez-vous à votre interface Sellsy
+2. Allez dans **Paramètres** > **Comptabilité** > **Plan comptable**
+3. Trouvez le code comptable souhaité (ex: 628000)
+4. Cliquez sur le code pour voir ses détails
+5. L'ID du code comptable se trouve dans l'URL : `https://votrecompte.sellsy.com/settings/accountdatas/edit/ID`
+6. Copiez cet ID et ajoutez-le dans `config.py` :
+
+```python
+ACCOUNTING_CODE_MAPPING = {
+    '628000': 'ID_TROUVE',  # Remplacez ID_TROUVE par l'ID récupéré
+    '706000': 'ID_TROUVE',
+    '601000': 'ID_TROUVE',
+}
+```
+
+**Note :** Les codes comptables sont automatiquement assignés selon la catégorie du service :
+- Catégorie "Abonnement" → Code comptable 628000
+
+### 3. Structure de la table Airtable
 
 Votre table Airtable doit contenir les champs suivants:
 

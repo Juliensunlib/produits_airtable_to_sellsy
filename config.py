@@ -31,6 +31,18 @@ CATEGORY_MAPPING = {
     # Ajoutez les autres catégories selon vos besoins
 }
 
+# Mapping des codes comptables vers leurs IDs Sellsy
+# À remplir manuellement en consultant votre interface Sellsy
+# (Paramètres > Comptabilité > Plan comptable)
+ACCOUNTING_CODE_MAPPING = {
+    # Format : 'Code comptable': 'ID du code comptable dans Sellsy'
+    # Exemple :
+    '628000': None,  # ID à récupérer depuis Sellsy
+    '706000': None,  # ID à récupérer depuis Sellsy
+    '601000': None,  # ID à récupérer depuis Sellsy
+    # Ajoutez les autres codes selon vos besoins
+}
+
 # Mapping des champs Airtable vers Sellsy
 AIRTABLE_TO_SELLSY_MAPPING = {
     'name': 'Référence',         # Code référence dans Airtable
